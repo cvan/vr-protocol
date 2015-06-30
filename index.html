@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <style>
+      body { font: 32px sans-serif; }
+    </style>
+  </head>
+  <body>
+    <script>
+navigator.registerProtocolHandler('http+vr', new URL('./vr/', window.location.href).href + '?%s', 'http+vr handler');
+// navigator.registerProtocolHandler('https+vr', new URL('./vr/', window.location.href).href + '?%s', 'https+vr handler');
+    </script>
+    <p><a href="http+vr://mozvr.github.io/sechelt/?mode=vr">Sechelt</a></p>
+  </body>
+</html>
