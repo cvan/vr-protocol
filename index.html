@@ -47,11 +47,13 @@ navigator.registerProtocolHandler('https+stereo', new URL('#{"projection": "ster
 window.addEventListener('hashchange', handleHashChange);
 window.addEventListener('load', handleHashChange);
 
-function handleHashChange() {
+function handleHashChange(e) {
   try {
     var params = JSON.parse(window.location.hash.substr(1));
   } catch (e) {
-    console.warn('Could not parse hash as JSON');
+    if (e.type === 'hashchange') {
+      console.warn('Could not parse hash as JSON');
+    }
     return;
   }
 
