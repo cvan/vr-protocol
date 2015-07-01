@@ -3,14 +3,72 @@
   <head>
     <meta charset="utf-8">
     <style>
-      body { font: 32px sans-serif; }
+      body { font: 32px sans-serif; margin: 30px; }
+      nav p { display: inline-block; }
+      nav p + p { margin-left: 30px; }
+      iframe { border: 1px solid #000; height: 200px; width: 100%; }
+      fieldset + fieldset { margin-top: 30px; }
+      legend { padding: 0 15px; }
     </style>
   </head>
   <body>
+    <fieldset>
+      <nav>
+        <p><a href="http+stereo://mozvr.github.io/sechelt/?mode=vr">Sechelt <b>stereo</b></a></p>
+        <p><a href="http+mono://mozvr.github.io/sechelt/">Sechelt <b>mono</b></a></p>
+      </nav>
+    </fieldset>
+    <fieldset>
+      <legend>mono</legend>
+      <iframe id="frame--mono" data-projection="mono"></iframe>
+    </fieldset>
+    <fieldset>
+      <legend>stereo</legend>
+      <iframe id="frame--stereo" data-projection="stereo"></iframe>
+    </fieldset>
     <script>
-navigator.registerProtocolHandler('http+vr', new URL('./vr/', window.location.href).href + '?%s', 'http+vr handler');
-// navigator.registerProtocolHandler('https+vr', new URL('./vr/', window.location.href).href + '?%s', 'https+vr handler');
+(function () {
+
+var $ = document.querySelector.bind(document);
+
+// NOTE: Since the link will do a synchronous page load and load the target URL, the hash should actually be tacked onto the URL for a separate page that communicates with Horizon.
+
+if (!('registerProtocolHandler' in navigator)) {
+  console.warn('`navigator.registerProtocolHandler` is required');
+  return;
+}
+
+navigator.registerProtocolHandler('http+mono', new URL('#{"projection": "mono", "url": "%s"}', window.location.href).href, 'WebVR mono');
+navigator.registerProtocolHandler('https+mono', new URL('#{"projection": "mono", "url": "%s"}', window.location.href).href, 'WebVR mono');
+
+navigator.registerProtocolHandler('http+stereo', new URL('#{"projection": "stereo", "url": "%s"}', window.location.href).href, 'WebVR stereo');
+navigator.registerProtocolHandler('https+stereo', new URL('#{"projection": "stereo", "url": "%s"}', window.location.href).href, 'WebVR stereo');
+
+window.addEventListener('hashchange', handleHashChange);
+window.addEventListener('load', handleHashChange);
+
+function handleHashChange() {
+  try {
+    var params = JSON.parse(window.location.hash.substr(1));
+  } catch (e) {
+    console.warn('Could not parse hash as JSON');
+    return;
+  }
+
+  if (params.projection && params.url) {
+    var realUrl = decodeURIComponent(params.url)
+      .replace(/^http\+mono/, 'http')
+      .replace(/^https\+mono/, 'https')
+      .replace(/^http\+stereo/, 'http')
+      .replace(/^https\+stereo/, 'https');
+
+    $('[data-projection="' + params.projection + '"').src = realUrl;
+
+    console.log('Loading %s content: %s', params.projection, realUrl);
+  }
+}
+
+})();
     </script>
-    <p><a href="http+vr://mozvr.github.io/sechelt/?mode=vr">Sechelt</a></p>
   </body>
 </html>
